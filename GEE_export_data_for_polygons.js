@@ -4,18 +4,16 @@ var s2 = ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED");
 // Import cloud scoring module (CS+)
 var csPlus = ee.ImageCollection("GOOGLE/CLOUD_SCORE_PLUS/V1/S2_HARMONIZED");
 
-// Define Regions of Interest (ROIs)
-var roi_krusne = ee.FeatureCollection(krusne);  // FeatureCollection for Krušné Mountains area
-print(roi_krusne);
-var roi_tab = ee.FeatureCollection(tabulka_homo);  // Additional ROI from table
+// Define study area geometry from a loaded asset table
+var roi = ee.FeatureCollection('projects/ee-project/geometry');  // Replace with your asset path
 
 // Quality Assessment (QA) settings
 var QA_BAND = 'cs';                        // QA band name for cloud score
 var CLEAR_THRESHOLD = 0.65;                // Threshold for clear pixels
 
 // Filter and mask Sentinel-2 collection
-var s2K_cloudmask = s2
-    .filterBounds(roi_krusne)                                     // Keep images over our ROI
+var s2_cloudmask = s2
+    .filterBounds(roi)                                            // Keep images over our ROI
     .filterDate('2020-01-01', '2024-12-31')                      // Date range filter
     .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))         // Cloud cover <20%
     .linkCollection(csPlus, [QA_BAND])                           // Attach cloud score band
@@ -23,7 +21,7 @@ var s2K_cloudmask = s2
       return img.updateMask(img.select(QA_BAND).gte(CLEAR_THRESHOLD));
     });
 // Print the filtered, cloud-masked collection
-print('Filtered and Cloud Masked Sentinel-2 Collection - KRUSNE:', s2K_cloudmask);
+print('Filtered and Cloud Masked Sentinel-2 Collection:', s2_cloudmask);
 
 // Function to add NDVI band
 var addNDVI = function(image) {
@@ -112,7 +110,7 @@ function addFAPARandLAI(image) {
 }
 
 // Chain all band-adding functions to collection
-var s2K_add_bands = s2K_cloudmask
+var s2_add_bands = s2K_cloudmask
   .map(addNDVI)
   .map(addNDMI)
   .map(addNDSI)
@@ -124,9 +122,8 @@ var s2K_add_bands = s2K_cloudmask
   .map(addTCW);
 
 // Set up interactive map view
-Map.centerObject(roi_krusne, 12);                          // Focus on ROI
-Map.addLayer(roi_krusne, {color: 'red'}, 'KRUSNE ROI');   // Add ROI layer
-Map.addLayer(roi_tab, {color: 'white'}, 'Table ROI');     // Add table ROI layer
+Map.centerObject(roi, 12);                          // Focus on ROI
+Map.addLayer(roi, {color: 'red'}, 'ROI');   // Add ROI layer
 
 // Create chart panel for time series plotting
 var chartPanel = ui.Panel();
@@ -137,12 +134,12 @@ ui.root.widgets().add(chartPanel);
 var updateChart = function(coords) {
   var clickedPoint = ee.Geometry.Point(coords.lon, coords.lat);
   var updatedChart = ui.Chart.image.series({
-    imageCollection: s2K_add_bands.select('NDMI'),    // Select NDMI band
+    imageCollection: s2_add_bands.select('NDMI'),    // Select NDMI band
     region: clickedPoint,                              // Point region
     reducer: ee.Reducer.mean(),                       // Mean value
     scale: 30
   }).setOptions({
-    title: 'NDMI Time Series at Clicked Point - KRUSNE',
+    title: 'NDMI Time Series at Clicked Point',
     vAxis: {title: 'NDMI'},
     hAxis: {title: 'Date'},
     lineWidth: 2,
@@ -160,24 +157,24 @@ Map.onClick(function(coords) {
 // Prepare and export data
 
 // Reduce images over ROI and get mean values for selected indices
-var getData_K = s2K_add_bands.select([
+var getData = s2_add_bands.select([
   'NDVI', 'EVI', 'NBR', 'NDMI', 'NDSI', 'NDRE', 'MSAVI', 'FAPAR', 'LAI', 'WNDII', 'TCW'
 ]).map(function(img) {
   return img.reduceRegions({
-    collection: roi_krusne,
+    collection: roi,
     reducer: ee.Reducer.mean(),
     scale: 10
   });
 });
 
 // Flatten the results and remove nulls
-var to_export_K = getData_K.flatten().filter(ee.Filter.notNull(['MSAVI']));
+var to_export = getData.flatten().filter(ee.Filter.notNull(['MSAVI']));
 
 // Export the table to Google Drive
 Export.table.toDrive({
-  collection: to_export_K,
-  description: 'Krusne_export',
+  collection: to_export,
+  description: 'export',
   folder: 'Export_GEE',
-  fileNamePrefix: 'Krusne_export',
+  fileNamePrefix: 'export',
   fileFormat: 'CSV'
 });
