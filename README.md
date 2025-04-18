@@ -1,6 +1,6 @@
-# Krušné Time Series Analysis Repository
+# Time Series Analysis Repository
 
-This repository provides end-to-end scripts and notebooks for processing, analyzing, clustering, classifying, and mapping Sentinel‑2 time series data over the Krušné Mountains region.
+This repository provides end-to-end scripts and notebooks for processing, analyzing, clustering, classifying, and mapping Sentinel‑2 time series data.
 
 ## Prerequisites
 
