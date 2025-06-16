@@ -48,7 +48,7 @@ Optionally, use a virtual environment or `conda` for isolation.
 2. Verify paths to CSVs and the pretrained model in `modely_svc/`.
 3. Run cells to tune the TS-SVC `C` parameter, evaluate univariate and multivariate feature sets, and view F1/accuracy results.
 
-### E. Generate Predictions & Shapefiles
+### F. Generate Predictions & Shapefiles
 1. Open `notebooks/TS_classification_per_pixel.ipynb`.
 2. The script will:
    - Load `dataset_for_per_pixel_classification.csv` and parse dates/IDs.
