@@ -21,7 +21,7 @@ Optionally, use a virtual environment or `conda` for isolation.
 ## Usage
 
 ### A. Earth Engine Processing
-1. Open `scripts/gee_script_with_comments.js` in the GEE Code Editor.
+1. Open `gee_script_with_comments.js` in the GEE Code Editor.
 2. Update any placeholder geometries or collection names as needed.
 3. Run the script to filter, mask, compute spectral indices, and export to CSV on Google Drive.
 
@@ -30,16 +30,21 @@ Optionally, use a virtual environment or `conda` for isolation.
    ```bash
    jupyter lab
    ```
-2. Open `notebooks/ndvi_time_series_notebook.ipynb`.
-3. Modify the `data_path` variable to point to your downloaded CSV (e.g., `data_csv/TS_data_obdelnik_maly.csv`).
+2. Open `graphs_for_first_analysis.ipynb`.
+3. Modify the `data_path` variable to point to your downloaded CSV.
 4. Run all cells to generate interactive plots of NDVI by phase, you can change indicies.
 
-### C. Time Series Clustering
-1. Open `notebooks/kmedoids_clustering.ipynb`.
+### C. Feature Selection via Correlation
+1. Compute Pearson matrix.
+2. Rank features by redundancy.
+3. Test combinations of these top features, excluding any forbidden pairs.
+
+### D. Time Series Clustering
+1. Open `TSC_K-medoids.ipynb` or `TSC_K-means.ipynb`.
 2. Execute cells to build a 3D ndarray, perform interpolation, run time series clustering, and visualize results.
 
-### D. Classification Tuning & Evaluation (TS-SVC)
-1. Open `notebooks/TS_classification_model.ipynb`.
+### E. Classification Tuning & Evaluation (TS-SVC)
+1. Open `TS_classification_model.ipynb`.
 2. Verify paths to CSVs and the pretrained model in `modely_svc/`.
 3. Run cells to tune the TS-SVC `C` parameter, evaluate univariate and multivariate feature sets, and view F1/accuracy results.
 
