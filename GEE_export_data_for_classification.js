@@ -4,6 +4,9 @@ var s2 = ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED");
 // Import cloud scoring module (CS+)
 var csPlus = ee.ImageCollection("GOOGLE/CLOUD_SCORE_PLUS/V1/S2_HARMONIZED");
 
+//  Define study area geometry from a loaded asset table
+ee.FeatureCollection('projects/ee-project/geometry');  // Replace with your asset path
+
 // Define analysis time range
 var startDate = '2020-01-01',  // Start date for filtering images
     endDate = '2024-12-31';    // End date for filtering images
